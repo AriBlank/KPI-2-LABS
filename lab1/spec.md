@@ -32,7 +32,7 @@ id: int PK
 order_id: int FK
 method: string
 amount: numeric
-paid_at: date
+paid_at: datetime
 status: string
 
 BRAND:
@@ -60,4 +60,4 @@ ORDER 1:N PAYMENT
 - назви полів у spec та на діаграмі збігаються
 - немає проміжних сутностей без власних атрибутів
 - ITEM.price зберігає поточну ціну в каталозі; ORDER_ITEM.unit_price зберігає ціну на момент замовлення
-
+- у paid_at тип даних - datetime, бо в один день може бути декілька замовлень 
