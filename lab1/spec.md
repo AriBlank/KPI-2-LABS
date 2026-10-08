@@ -19,6 +19,7 @@ ORDER:
 id: int PK
 status: string
 customer_id: int FK
+created_at: datetime
 
 ORDER_ITEM:
 id: int PK
@@ -62,3 +63,4 @@ ORDER 1:N PAYMENT
 - ITEM.price зберігає поточну ціну в каталозі; ORDER_ITEM.unit_price зберігає ціну на момент замовлення
 - у paid_at тип даних - datetime, бо в один день може бути декілька замовлень 
 - email покупця повинен бути унікальним
+- кожне замовлення має дату й час оформлення за допомогою атрибута created_at типу datetime
