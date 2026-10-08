@@ -5,7 +5,7 @@
 CUSTOMER: 
 id: int PK
 name: string
-email: string
+email: string UK
 
 ITEM:
 id: int PK
@@ -61,3 +61,4 @@ ORDER 1:N PAYMENT
 - немає проміжних сутностей без власних атрибутів
 - ITEM.price зберігає поточну ціну в каталозі; ORDER_ITEM.unit_price зберігає ціну на момент замовлення
 - у paid_at тип даних - datetime, бо в один день може бути декілька замовлень 
+- email покупця повинен бути унікальним
