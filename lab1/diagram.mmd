@@ -1,0 +1,50 @@
+erDiagram
+
+    CUSTOMER{
+        int id PK
+        string name
+        string email
+    }
+
+    ITEM{
+        int id PK
+        string name
+        int brand_id FK
+        string description
+        numeric price
+        string status
+    }
+
+    ORDER{
+        int id PK
+        string status
+        int customer_id FK
+    }
+
+    ORDER_ITEM{
+        int id PK
+        int quantity
+        int order_id FK
+        int item_id FK
+        numeric unit_price
+    }
+
+    PAYMENT{
+        int id PK
+        int order_id FK
+        string method
+        numeric amount
+        date paid_at
+        string status
+    }
+
+    BRAND{
+        int id PK
+        string name
+    }
+
+    BRAND      ||--o{ ITEM       : "належать"
+    CUSTOMER   ||--o{ ORDER      : "оформлює"
+    ORDER      ||--o{ ORDER_ITEM : "містить"
+    ITEM       ||--o{ ORDER_ITEM : "входить у"
+    ORDER      ||--o{ PAYMENT    : "оплачується через"
