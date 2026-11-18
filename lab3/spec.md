@@ -147,3 +147,45 @@ sequenceDiagram
     deactivate OS
     deactivate UI
 ```
+
+## сценарій 3
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'actorBkg': '#b37aaa', 
+'actorBorder': '#37a785', 
+'actorTextColor': '#6b367d','signalTextColor': '#37a785' }}}%%
+sequenceDiagram
+    autonumber
+    actor C as Покупець
+    participant UI as PaymentPage
+    participant OS as OrderService
+    participant DB as OrderDB
+    participant GW as PaymentGateway
+
+    C->>UI: натискає "Оплата"
+    activate UI
+    UI->>OS: initiatePayment(orderId, tokenId)
+    activate OS
+    OS->>GW: paymentRequest(orderId, tokenId)
+    activate GW
+    OS-->>UI:"У обробці"
+
+    alt Таймаут (немає відповіді 30 с)
+        Note over OS,GW: шлюз не відповідає 30 секунд
+        OS->>DB: savePayment(FAILED, reason=TIMEOUT)
+        activate DB
+        DB-->>OS: ok
+        deactivate DB
+        Note over OS,DB: статус ORDER залишається WAITING
+    end
+
+    loop запит статусу (Waiting)
+        UI->>OS: getStatus(orderId)
+        OS-->>UI: FAILED(TIMEOUT)
+    end
+
+    UI-->>C: показує "Платіжний шлюз не відповідає"
+    deactivate GW
+    deactivate OS
+    deactivate UI
+```
