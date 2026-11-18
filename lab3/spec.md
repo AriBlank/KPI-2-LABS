@@ -44,6 +44,17 @@
 4. OrderService -> PaymentPage: показ статуса "У обробці"
 5. PaymentGateway -> OrderService: виклик callback(declined, INSUFFICIENT_FUNDS)
 6. OrderService -> OrderDB: додавання запису через  savePayment(status=FAILED, reason=INSUFFICIENT_FUNDS)
-7. PaymentPage -> OrderService: getStatus(orderId)
+7. PaymentPage -> OrderService: запит статусу getStatus(orderId)
 8. OrderService -> PaymentPage: повернення FAILED(INSUFFICIENT_FUNDS) (ORDER.status залишається WAITING)
 9. PaymentPage -> Покупець: показує "Відхилено через недостатність коштів"
+
+## сценарій 3 (оплата відхилена через проблеми з платіжним шлюзом/таймаут)
+1. Покупець -> PaymentPage: натискає кнопку "Оплата"
+2. PaymentPage -> OrderService: ініціація оплати initiatePayment(orderId, tokenId)
+3. OrderService -> PaymentGateway: запит оплати  paymentRequest(orderId, tokenId)
+4. OrderService -> PaymentPage: показ статуса "У обробці"
+5. PaymentGateway (не відповідає 30 секунд)
+6. OrderService -> OrderDB: додавання запису через savePayment(status=FAILED, reason=TIMEOUT)
+7. PaymentPage -> OrderService: запит статусу getStatus(orderId)
+8. OrderService -> PaymentPage: повернення FAILED(TIMEOUT) (статус залишається WAITING)
+9. PaymentPage -> Покупець: показує "Платіжний шлюз не відповідає"
