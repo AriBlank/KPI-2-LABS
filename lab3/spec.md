@@ -18,3 +18,20 @@
 | PaymentGateway | зовнішній учасник який опрацьовує дії з переказами коштів | зовнішній учасник |
 | Покупець | користувач, який оплачує замовлення | CUSTOMER |
 
+# кроки сценаріїв
+
+схема кроків:
+учасник -> учасник: дія
+
+## сценарій 1 (оплата пройшла успішно)
+
+1. Покупець -> PaymentPage: натискає кнопку "Оплата"
+2. PaymentPage -> OrderService: ініціація оплати initiatePayment(orderId, tokenId)
+3. OrderService -> PaymentGateway: запит оплати  paymentRequest(orderId, tokenId)
+4. OrderService -> PaymentPage: показ статуса "У обробці"
+5. PaymentGateway -> OrderService: виклик callback(approved, receiptId)
+6. OrderService -> OrderDB: додавання запису через savePayment(status=SUCCESS, method=CARD, amount=SUM(unit_price*quantity), paid_at=now, order_id=orderId)
+7. OrderService -> OrderDB: оновлення статусу у базі даних updateOrderStatus(orderId, PAID)
+8. PaymentPage -> OrderService: запит статусу getStatus(orderId)    (у циклі поки не отримано фінальний статус)
+9. OrderService -> PaymentPage: повернення PAID(receiptId)
+10. PaymentPage -> Покупець: показує "Оплачено"
