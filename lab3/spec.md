@@ -95,12 +95,54 @@ sequenceDiagram
         deactivate DB
     end
 
-    loop опитування статусу (Waiting)
+    loop запит статусу(Waiting)
         UI->>OS: getStatus(orderId)
         OS-->>UI: PAID(receiptId)
     end
 
     UI-->>C: показує "Оплачено"
+    deactivate GW
+    deactivate OS
+    deactivate UI
+```
+
+## 2 сценарій
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'actorBkg': '#b37aaa', 
+'actorBorder': '#37a785', 
+'actorTextColor': '#6b367d','signalTextColor': '#37a785' }}}%%
+sequenceDiagram
+    autonumber
+    actor C as Покупець
+    participant UI as PaymentPage
+    participant OS as OrderService
+    participant DB as OrderDB
+    participant GW as PaymentGateway
+
+    C->>UI: натискає "Оплата"
+    activate UI
+    UI->>OS: initiatePayment(orderId, tokenId)
+    activate OS
+    OS->>GW: paymentRequest(orderId, tokenId)
+    activate GW
+    OS-->>UI:"У обробці"
+
+    alt отримано callback від шлюзу
+        GW-->>OS: callback(declined, INSUFFICIENT_FUNDS)
+        OS->>DB: savePayment(FAILED, reason=INSUFFICIENT_FUNDS)
+        activate DB
+        DB-->>OS: ok
+        deactivate DB
+        Note over OS,DB: Статус ORDER залишається WAITING
+    end
+
+    loop запит статусу (Waiting)
+        UI->>OS: getStatus(orderId)
+        OS-->>UI: FAILED(INSUFFICIENT_FUNDS)
+    end
+
+    UI-->>C: показує "Відхилено через недостатність коштів"
     deactivate GW
     deactivate OS
     deactivate UI
