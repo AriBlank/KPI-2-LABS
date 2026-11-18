@@ -58,3 +58,50 @@
 7. PaymentPage -> OrderService: запит статусу getStatus(orderId)
 8. OrderService -> PaymentPage: повернення FAILED(TIMEOUT) (статус залишається WAITING)
 9. PaymentPage -> Покупець: показує "Платіжний шлюз не відповідає"
+
+# sequance-діаграми
+
+## 1 сценарій
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'actorBkg': '#b37aaa', 
+'actorBorder': '#37a785', 
+'actorTextColor': '#6b367d','signalTextColor': '#37a785' }}}%%
+sequenceDiagram
+    autonumber
+    actor C as Покупець
+    participant UI as PaymentPage
+    participant OS as OrderService
+    participant DB as OrderDB
+    participant GW as PaymentGateway
+
+    C->>UI: натискає "Оплата"
+    activate UI
+    UI->>OS: initiatePayment(orderId, tokenId)
+    activate OS
+    OS->>GW: paymentRequest(orderId, tokenId)
+    activate GW
+    OS-->>UI: "У обробці"
+
+    alt отримано callback від шлюзу
+        GW-->>OS: callback(approved, receiptId)
+        OS->>DB: savePayment(SUCCESS, CARD, amount, now)
+        activate DB
+        DB-->>OS: ok
+        deactivate DB
+        OS->>DB: updateOrderStatus(orderId, PAID)
+        activate DB
+        DB-->>OS: ok
+        deactivate DB
+    end
+
+    loop опитування статусу (Waiting)
+        UI->>OS: getStatus(orderId)
+        OS-->>UI: PAID(receiptId)
+    end
+
+    UI-->>C: показує "Оплачено"
+    deactivate GW
+    deactivate OS
+    deactivate UI
+```
